@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">GambareRentaro</string>
     <string name="title_activity_result">ResultActivity</string>
+    <string name="title_activity_menu">MenuActivity</string>
 </resources>
