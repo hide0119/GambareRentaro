@@ -1,5 +1,6 @@
 package com.example.gambarerentaro
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.RadioButton
@@ -45,8 +46,6 @@ class MainActivity : AppCompatActivity() {
             .build()
         correctSoundId = soundPool.load(this.resources.openRawResourceFd(R.raw.hit), 1) // 正解音
         incorrectSoundId = soundPool.load(this.resources.openRawResourceFd(R.raw.over), 1)  // 不正解音
-//        correctSoundId = soundPool.load(this, AudioManager.FX_KEY_CLICK, 1) // 正解音
-//        incorrectSoundId = soundPool.load(this, AudioManager.FX_KEYPRESS_DELETE, 1) // 不正解音
 
         // 最初の問題を表示
         showQuestion()
@@ -105,7 +104,12 @@ class MainActivity : AppCompatActivity() {
         val totalQuestions = questions.size
         val message = "全問終了！\n正解数は $correctAnswers / $totalQuestions です。"
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-        // リセット処理 (必要に応じて実装)
+
+        // 結果画面へ
+        val intent = Intent(this, ResultActivity::class.java)
+        intent.putExtra("TOTAL_SCORE", correctAnswers)
+        intent.putExtra("TOTAL_QUESTION", totalQuestions)
+        startActivity(intent)
     }
 
     override fun onDestroy() {

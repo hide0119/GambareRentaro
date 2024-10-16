@@ -1,7 +1,10 @@
 package com.example.gambarerentaro
 
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,40 +22,44 @@ class ResultActivity : ComponentActivity() {
     private var correctCount = 0 // クラス変数として宣言
     private var incorrectCount = 0 // クラス変数として宣言
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_result)
 
-        val resultTextView = findViewById<TextView>(R.id.tv_result)
-        val correctCountTextView = findViewById<TextView>(R.id.tv_correct_count)
-        val incorrectCountTextView = findViewById<TextView>(R.id.tv_incorrect_count)
+        val totalScore = intent.getIntExtra("TOTAL_SCORE", 0)
+        val totalQuestions = intent.getIntExtra("TOTAL_QUESTION", 0)
 
-        // 結果を表示
-        resultTextView.text = "あなたの結果は..."
-        correctCountTextView.text = "正解数: $correctCount"
-        incorrectCountTextView.text = "不正解数: $incorrectCount"
+        val totalScoreTextView = findViewById<TextView>(R.id.totalScoreTextView)
+        val totalQuestionsTextView = findViewById<TextView>(R.id.totalQuestionsTextView)
+        val resultImageView = findViewById<ImageView>(R.id.resultImageView)
 
-        // 再挑戦ボタンのクリックイベント
-        val retryButton = findViewById<Button>(R.id.btn_retry)
+        totalScoreTextView.text = "合計スコア: $totalScore"
+        totalQuestionsTextView.text = "問題数: $totalQuestions"
+
+        if (totalScore == totalQuestions) {
+            resultImageView.setImageResource(R.drawable.perfect_image)
+        } else {
+            resultImageView.setImageResource(R.drawable.not_perfect_image)
+        }
+
+        val menuButton = findViewById<Button>(R.id.menuButton)
+        menuButton.setOnClickListener {
+            // MenuActivityを起動する処理
+            val intent = Intent(this, MenuActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        val retryButton = findViewById<Button>(R.id.retryButton)
         retryButton.setOnClickListener {
-            // 再挑戦時の処理
+            // MainActivityを起動する処理
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    GambareRentaroTheme {
-        Greeting("Android")
-    }
-}
 
