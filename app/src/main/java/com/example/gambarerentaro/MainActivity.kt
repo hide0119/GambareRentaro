@@ -9,6 +9,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import android.media.SoundPool
+import android.net.Uri
+import android.view.View
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.LinearLayout
 
 class MainActivity : AppCompatActivity() {
 
@@ -67,9 +73,18 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        val webView = findViewById<WebView>(R.id.webView)
+        // キャッシュモードを変更
+        webView.settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+        webView.settings.javaScriptEnabled = true // JavaScript を有効にする
+        webView.webViewClient = WebViewClient() // リンクを WebView 内で開く
     }
 
     private fun showQuestion() {
+        // WebView を非表示にする
+        val webViewContainer = findViewById<LinearLayout>(R.id.webViewContainer)
+        webViewContainer.visibility = View.GONE
         if (currentQuestionIndex < questions.size) {
             val question = questions[currentQuestionIndex]
             tvQuestion.text = question.text
@@ -115,6 +130,21 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         soundPool.release()
+    }
+
+    fun toggleWebView(view: View) {
+        val webViewContainer = findViewById<LinearLayout>(R.id.webViewContainer)
+        val webView = findViewById<WebView>(R.id.webView)
+
+        if (webViewContainer.visibility == View.GONE) {
+            webViewContainer.visibility = View.VISIBLE
+            // WebView に URL をロード
+            val searchQuery = questions[currentQuestionIndex].text // 現在の問題文を検索キーワードにする
+            val url = "https://www.google.com/search?q=" + Uri.encode(searchQuery)
+            webView.loadUrl(url)
+        } else {
+            webViewContainer.visibility = View.GONE
+        }
     }
 
     data class Question(val text: String, val answer: String, val options: List<String>)
