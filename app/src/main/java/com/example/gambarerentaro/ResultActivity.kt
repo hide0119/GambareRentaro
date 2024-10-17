@@ -2,6 +2,7 @@ package com.example.gambarerentaro
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
@@ -21,6 +22,8 @@ import android.widget.TextView
 class ResultActivity : ComponentActivity() {
     private var correctCount = 0 // クラス変数として宣言
     private var incorrectCount = 0 // クラス変数として宣言
+    private lateinit var correctMediaPlayer: MediaPlayer
+    private lateinit var wrongMediaPlayer: MediaPlayer
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,13 +37,18 @@ class ResultActivity : ComponentActivity() {
         val totalQuestionsTextView = findViewById<TextView>(R.id.totalQuestionsTextView)
         val resultImageView = findViewById<ImageView>(R.id.resultImageView)
 
+        correctMediaPlayer = MediaPlayer.create(this, R.raw.quiz_correct)
+        wrongMediaPlayer = MediaPlayer.create(this, R.raw.quiz_wrong)
+
         totalScoreTextView.text = "合計スコア: $totalScore"
         totalQuestionsTextView.text = "問題数: $totalQuestions"
 
         if (totalScore == totalQuestions) {
             resultImageView.setImageResource(R.drawable.perfect_image)
+            correctMediaPlayer.start()
         } else {
             resultImageView.setImageResource(R.drawable.not_perfect_image)
+            wrongMediaPlayer.start()
         }
 
         val menuButton = findViewById<Button>(R.id.menuButton)
@@ -58,6 +66,11 @@ class ResultActivity : ComponentActivity() {
             startActivity(intent)
             finish()
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        correctMediaPlayer.release()
+        wrongMediaPlayer.release()
     }
 }
 
