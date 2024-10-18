@@ -15,6 +15,18 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.LinearLayout
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.*
+import android.content.Context
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,16 +37,13 @@ class MainActivity : AppCompatActivity() {
 
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
-    private val questions = listOf(
-        Question("日本の首都はどこですか？", "東京", listOf("大阪", "京都", "東京", "流山")),
-        Question("世界で一番高い山はどこですか？", "エベレスト", listOf("富士山", "エベレスト", "マッターホルン", "筑波山")),
-        Question("九州に含まれる県はどれですか？", "鹿児島", listOf("山口", "香川", "大阪", "鹿児島")),
-        Question("東北に含まれる県はどれですか？", "青森", listOf("青森", "香川", "大阪", "鹿児島")),
-        // ... (他の問題を追加)
-    )
     private lateinit var soundPool: SoundPool
     private var correctSoundId: Int = 0
     private var incorrectSoundId: Int = 0
+
+    private lateinit var db: AppDatabase
+    private lateinit var questionDao: QuestionDao
+    private lateinit var questions: List<Question>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,9 +62,55 @@ class MainActivity : AppCompatActivity() {
         correctSoundId = soundPool.load(this.resources.openRawResourceFd(R.raw.hit), 1) // 正解音
         incorrectSoundId = soundPool.load(this.resources.openRawResourceFd(R.raw.over), 1)  // 不正解音
 
-        // 最初の問題を表示
-        showQuestion()
+        lifecycleScope.launch(Dispatchers.IO) {
+            db = AppDatabase.getDatabase(applicationContext)
+            questionDao = db.questionDao()
 
+            // 初回起動時にDBに問題データを挿入
+            if (questionDao.getAllQuestions().isEmpty()) {
+                questionDao.insertAll(
+                    Question(
+                        text = "日本の首都はどこですか？",
+                        answer = "東京",
+                        option1 = "大阪",
+                        option2 = "京都",
+                        option3 = "東京",
+                        option4 = "流山"
+                    ),
+                    Question(
+                        text = "世界で一番高い山はどこですか？",
+                        answer = "エベレスト",
+                        option1 = "富士山",
+                        option2 = "エベレスト",
+                        option3 = "マッターホルン",
+                        option4 = "筑波山"
+                    ),
+                    Question(
+                        text = "九州に含まれる県はどれですか？",
+                        answer = "鹿児島",
+                        option1 = "山口",
+                        option2 = "香川",
+                        option3 = "大阪",
+                        option4 = "鹿児島"
+                    ),
+                    Question(
+                        text = "東北に含まれる県はどれですか？",
+                        answer = "青森",
+                        option1 = "青森",
+                        option2 = "香川",
+                        option3 = "大阪",
+                        option4 = "鹿児島"
+                    )
+                )
+            }
+            questions = questionDao.getAllQuestions() // 問題データを取得
+
+            // メインスレッドで UI を更新
+            withContext(Dispatchers.Main) {
+                // 最初の問題を表示
+                showQuestion()
+            }
+        }
         // 回答ボタンのクリック処理
         btnAnswer.setOnClickListener {
             val selectedRadioButtonId = rgChoices.checkedRadioButtonId
@@ -88,13 +143,15 @@ class MainActivity : AppCompatActivity() {
         if (currentQuestionIndex < questions.size) {
             val question = questions[currentQuestionIndex]
             tvQuestion.text = question.text
+
+            // setChoices() を呼び出して選択肢を設定
             setChoices(question)
         }
     }
 
     private fun setChoices(question: Question) {
         rgChoices.removeAllViews() // 既存の選択肢を削除
-        val options = question.options.shuffled() // 選択肢の順序をシャッフル
+        val options = listOf(question.option1, question.option2, question.option3, question.option4).shuffled()
         for (option in options) {
             val radioButton = RadioButton(this)
             radioButton.text = option
@@ -146,6 +203,52 @@ class MainActivity : AppCompatActivity() {
             webViewContainer.visibility = View.GONE
         }
     }
+}
 
-    data class Question(val text: String, val answer: String, val options: List<String>)
+@Entity(tableName = "questions")
+data class Question(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @ColumnInfo(name = "question_text") val text: String,
+    @ColumnInfo(name = "correct_answer") val answer: String,
+    @ColumnInfo(name = "option1") val option1: String,
+    @ColumnInfo(name = "option2") val option2: String,
+    @ColumnInfo(name = "option3") val option3: String,
+    @ColumnInfo(name = "option4") val option4: String
+)
+
+@Dao
+interface QuestionDao {
+    @Query("SELECT * FROM questions")
+    fun getAllQuestions(): List<Question>
+
+    @Insert
+    fun insertAll(vararg questions: Question)
+
+    @Delete
+    fun delete(question: Question)
+
+    @Update
+    fun update(question: Question)
+}
+
+@Database(entities = [Question::class], version = 1)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun questionDao(): QuestionDao
+
+    companion object {
+        @Volatile
+        private var INSTANCE: AppDatabase? = null
+
+        fun getDatabase(context: Context): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    "quiz_database"
+                ).build()
+                INSTANCE = instance
+                instance
+            }
+        }
+    }
 }
