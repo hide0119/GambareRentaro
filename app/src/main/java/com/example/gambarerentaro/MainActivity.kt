@@ -27,6 +27,9 @@ import androidx.room.RoomDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.InputStream
 
 class MainActivity : AppCompatActivity() {
 
@@ -68,40 +71,8 @@ class MainActivity : AppCompatActivity() {
 
             // 初回起動時にDBに問題データを挿入
             if (questionDao.getAllQuestions().isEmpty()) {
-                questionDao.insertAll(
-                    Question(
-                        text = "日本の首都はどこですか？",
-                        answer = "東京",
-                        option1 = "大阪",
-                        option2 = "京都",
-                        option3 = "東京",
-                        option4 = "流山"
-                    ),
-                    Question(
-                        text = "世界で一番高い山はどこですか？",
-                        answer = "エベレスト",
-                        option1 = "富士山",
-                        option2 = "エベレスト",
-                        option3 = "マッターホルン",
-                        option4 = "筑波山"
-                    ),
-                    Question(
-                        text = "九州に含まれる県はどれですか？",
-                        answer = "鹿児島",
-                        option1 = "山口",
-                        option2 = "香川",
-                        option3 = "大阪",
-                        option4 = "鹿児島"
-                    ),
-                    Question(
-                        text = "東北に含まれる県はどれですか？",
-                        answer = "青森",
-                        option1 = "青森",
-                        option2 = "香川",
-                        option3 = "大阪",
-                        option4 = "鹿児島"
-                    )
-                )
+                val json = loadQuestionsJson()
+                parseAndInsertQuestions(json)
             }
             questions = questionDao.getAllQuestions() // 問題データを取得
 
@@ -201,6 +172,31 @@ class MainActivity : AppCompatActivity() {
             webView.loadUrl(url)
         } else {
             webViewContainer.visibility = View.GONE
+        }
+    }
+
+    private fun loadQuestionsJson(): String {
+        val inputStream: InputStream = assets.open("questions.json")
+        val size:Int = inputStream.available()
+        val buffer = ByteArray(size)
+        inputStream.read(buffer)
+        inputStream.close()
+        return String(buffer, Charsets.UTF_8)
+    }
+
+    private suspend fun parseAndInsertQuestions(jsonString: String) {
+        val jsonArray = JSONArray(jsonString)
+        for (i in 0 until jsonArray.length()) {
+            val jsonObject = jsonArray.getJSONObject(i)
+            val question = Question(
+                text = jsonObject.getString("text"),
+                answer = jsonObject.getString("answer"),
+                option1 = jsonObject.getString("option1"),
+                option2 = jsonObject.getString("option2"),
+                option3 = jsonObject.getString("option3"),
+                option4 = jsonObject.getString("option4")
+            )
+            questionDao.insertAll(question)
         }
     }
 }
