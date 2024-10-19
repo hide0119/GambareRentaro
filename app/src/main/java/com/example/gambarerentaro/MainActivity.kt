@@ -24,6 +24,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -52,6 +54,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // 区分情報を受け取る
+        val category1 = intent.getStringExtra("CATEGORY1")
+        val category2 = intent.getStringExtra("CATEGORY2")
+        val category3 = intent.getStringExtra("CATEGORY3")
+        val category4 = intent.getStringExtra("CATEGORY4")
+        val category5 = intent.getStringExtra("CATEGORY5")
+
         // UI要素の初期化
         tvQuestion = findViewById(R.id.tv_question)
         rgChoices = findViewById(R.id.rg_choices)
@@ -74,8 +83,8 @@ class MainActivity : AppCompatActivity() {
                 val json = loadQuestionsJson()
                 parseAndInsertQuestions(json)
             }
-            questions = questionDao.getAllQuestions() // 問題データを取得
-
+            // 区分を指定して問題を取得
+            questions = questionDao.getQuestionsByCategory(category1, category2, category3, category4, category5)
             // メインスレッドで UI を更新
             withContext(Dispatchers.Main) {
                 // 最初の問題を表示
@@ -194,7 +203,12 @@ class MainActivity : AppCompatActivity() {
                 option1 = jsonObject.getString("option1"),
                 option2 = jsonObject.getString("option2"),
                 option3 = jsonObject.getString("option3"),
-                option4 = jsonObject.getString("option4")
+                option4 = jsonObject.getString("option4"),
+                category1 = jsonObject.getString("category1"),
+                category2 = jsonObject.getString("category2"),
+                category3 = jsonObject.getString("category3"),
+                category4 = jsonObject.getString("category4"),
+                category5 = jsonObject.getString("category5")
             )
             questionDao.insertAll(question)
         }
@@ -203,13 +217,18 @@ class MainActivity : AppCompatActivity() {
 
 @Entity(tableName = "questions")
 data class Question(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate =true) val id: Int = 0,
     @ColumnInfo(name = "question_text") val text: String,
     @ColumnInfo(name = "correct_answer") val answer: String,
     @ColumnInfo(name = "option1") val option1: String,
     @ColumnInfo(name = "option2") val option2: String,
     @ColumnInfo(name = "option3") val option3: String,
-    @ColumnInfo(name = "option4") val option4: String
+    @ColumnInfo(name = "option4") val option4: String,
+    @ColumnInfo(name = "category1") val category1: String?, // 塾
+    @ColumnInfo(name = "category2") val category2: String?, // 学年
+    @ColumnInfo(name = "category3") val category3: String?, // テストの種類
+    @ColumnInfo(name = "category4") val category4: String?, // 月
+    @ColumnInfo(name = "category5") val category5: String?  // 科目
 )
 
 @Dao
@@ -225,9 +244,12 @@ interface QuestionDao {
 
     @Update
     fun update(question: Question)
+
+    @Query("SELECT * FROM questions WHERE category1 = :category1 AND category2 = :category2 AND category3 = :category3 AND category4 = :category4 AND category5 = :category5")
+    fun getQuestionsByCategory(category1: String?, category2: String?, category3: String?, category4: String?, category5: String?): List<Question>
 }
 
-@Database(entities = [Question::class], version = 1)
+@Database(entities = [Question::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun questionDao(): QuestionDao
 
@@ -237,13 +259,32 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
+                val dbFile = context.getDatabasePath("quiz_database")
+                if (dbFile.exists()) {
+                    dbFile.delete()
+                }
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "quiz_database"
-                ).build()
+                )
+                // 移行処理を追加
+                .addMigrations(MIGRATION_1_2)
+                .fallbackToDestructiveMigration() // データベースを削除して再作成
+                .build()
                 INSTANCE = instance
                 instance
+            }
+        }
+        // 移行処理を定義
+        private val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // 新しいカラムを追加
+                database.execSQL("ALTER TABLE questions ADD COLUMN category1 TEXT")
+                database.execSQL("ALTER TABLE questions ADD COLUMN category2 TEXT")
+                database.execSQL("ALTER TABLE questions ADD COLUMN category3 TEXT")
+                database.execSQL("ALTER TABLE questions ADD COLUMN category4 TEXT")
+                database.execSQL("ALTER TABLE questions ADD COLUMN category5 TEXT")
             }
         }
     }

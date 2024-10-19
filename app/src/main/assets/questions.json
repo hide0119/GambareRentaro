@@ -5,7 +5,12 @@
         "option1": "大阪",
         "option2": "京都",
         "option3": "東京",
-        "option4": "流山"
+        "option4": "流山",
+        "category1": "塾",
+        "category2": "4年",
+        "category3": "基礎テスト",
+        "category4": "11月",
+        "category5": "社会"
     },
     {
         "text": "世界で一番高い山はどこですか？",
@@ -13,22 +18,37 @@
         "option1": "富士山",
         "option2": "エベレスト",
         "option3": "マッターホルン",
-        "option4": "筑波山"
+        "option4": "筑波山",
+        "category1": "塾",
+        "category2": "4年",
+        "category3": "基礎テスト",
+        "category4": "11月",
+        "category5": "社会"
     },
     {
-        "text": "九州に含まれる県はどれですか？",
-        "answer": "鹿児島",
-        "option1": "山口",
-        "option2": "香川",
-        "option3": "大阪",
-        "option4": "鹿児島"
+        "text": "鹿児島はなんとよみますか？",
+        "answer": "かごしま",
+        "option1": "かごしま",
+        "option2": "かこしま",
+        "option3": "かこじま",
+        "option4": "かっこいーしま",
+        "category1": "塾",
+        "category2": "4年",
+        "category3": "基礎テスト",
+        "category4": "11月",
+        "category5": "国語"
     },
     {
-        "text": "東北に含まれる県はどれですか？",
-        "answer": "青森",
-        "option1": "青森",
-        "option2": "香川",
-        "option3": "大阪",
-        "option4": "鹿児島"
+        "text": "手は英語でなんですか？",
+        "answer": "hand",
+        "option1": "hand",
+        "option2": "head",
+        "option3": "mouth",
+        "option4": "eye",
+        "category1": "塾",
+        "category2": "4年",
+        "category3": "基礎テスト",
+        "category4": "11月",
+        "category5": "英語"
     }
 ]

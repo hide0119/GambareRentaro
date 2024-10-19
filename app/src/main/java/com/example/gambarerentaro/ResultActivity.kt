@@ -46,14 +46,6 @@ class ResultActivity : ComponentActivity() {
             startActivity(intent)
             finish()
         }
-
-        val retryButton = findViewById<Button>(R.id.retryButton)
-        retryButton.setOnClickListener {
-            // MainActivityを起動する処理
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
     }
     override fun onDestroy() {
         super.onDestroy()
