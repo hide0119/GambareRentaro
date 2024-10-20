@@ -27,21 +27,32 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_question">
+
+        <ImageView
+            android:id="@+id/iv_question_image"
+            android:layout_width="match_parent"
+            android:layout_height="163dp"
+            android:visibility="gone"
+            tools:ignore="MissingConstraints" />
+
         <RadioButton
             android:id="@+id/rb_choice1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="選択肢1" />
+
         <RadioButton
             android:id="@+id/rb_choice2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="選択肢2" />
+
         <RadioButton
             android:id="@+id/rb_choice3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="選択肢3" />
+
         <RadioButton
             android:id="@+id/rb_choice4"
             android:layout_width="match_parent"
@@ -58,6 +69,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rg_choices" />
+
     <LinearLayout
         android:id="@+id/webViewContainer"
         android:layout_width="0dp"
@@ -80,8 +92,8 @@
         android:id="@+id/hintButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ヒント"
         android:onClick="toggleWebView"
+        android:text="ヒント"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/webViewContainer" />
