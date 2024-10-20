@@ -1,5 +1,6 @@
 package com.example.gambarerentaro
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -20,6 +21,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.*
 import android.content.Context
+import android.widget.ImageView
+import android.widget.ScrollView
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Database
 import androidx.room.Room
@@ -49,6 +52,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var db: AppDatabase
     private lateinit var questionDao: QuestionDao
     private lateinit var questions: List<Question>
+    private lateinit var imageView: ImageView // ImageView をプロパティとして宣言
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         rgChoices = findViewById(R.id.rg_choices)
         btnAnswer = findViewById(R.id.btn_answer)
         tvScore = findViewById(R.id.tv_score)
+        imageView = findViewById(R.id.iv_question_image)
 
         // 標準の効果音をロード
         soundPool = SoundPool.Builder()
@@ -123,6 +128,13 @@ class MainActivity : AppCompatActivity() {
         if (currentQuestionIndex < questions.size) {
             val question = questions[currentQuestionIndex]
             tvQuestion.text = question.text
+            // 画像を表示
+            if (question.imageResourceId != null) {
+                imageView.setImageResource(question.imageResourceId) // imageView をプロパティとして使用
+                imageView.visibility = View.VISIBLE
+            } else {
+                imageView.visibility = View.GONE // imageView をプロパティとして使用
+            }
 
             // setChoices() を呼び出して選択肢を設定
             setChoices(question)
@@ -150,6 +162,9 @@ class MainActivity : AppCompatActivity() {
             soundPool.play(incorrectSoundId, 1f, 1f, 0, 0, 1f)
         }
         tvScore.text = "スコア: $correctAnswers"
+        // スクロールを一番上に移動
+        val scrollView = findViewById<ScrollView>(R.id.scrollView) // ScrollViewのIDを設定
+        scrollView.fullScroll(ScrollView.FOCUS_UP)
     }
 
     private fun showResult() {
@@ -193,10 +208,17 @@ class MainActivity : AppCompatActivity() {
         return String(buffer, Charsets.UTF_8)
     }
 
+    @SuppressLint("DiscouragedApi")
     private suspend fun parseAndInsertQuestions(jsonString: String) {
         val jsonArray = JSONArray(jsonString)
         for (i in 0 until jsonArray.length()) {
             val jsonObject = jsonArray.getJSONObject(i)
+            val imageResourceName = jsonObject.optString("imageResourceId", null)
+            val imageResourceId = if (imageResourceName != null) {
+                resources.getIdentifier(imageResourceName, "drawable", packageName)
+            } else {
+                null
+            }
             val question = Question(
                 text = jsonObject.getString("text"),
                 answer = jsonObject.getString("answer"),
@@ -208,7 +230,8 @@ class MainActivity : AppCompatActivity() {
                 category2 = jsonObject.getString("category2"),
                 category3 = jsonObject.getString("category3"),
                 category4 = jsonObject.getString("category4"),
-                category5 = jsonObject.getString("category5")
+                category5 = jsonObject.getString("category5"),
+                imageResourceId = imageResourceId
             )
             questionDao.insertAll(question)
         }
@@ -228,7 +251,8 @@ data class Question(
     @ColumnInfo(name = "category2") val category2: String?, // 学年
     @ColumnInfo(name = "category3") val category3: String?, // テストの種類
     @ColumnInfo(name = "category4") val category4: String?, // 月
-    @ColumnInfo(name = "category5") val category5: String?  // 科目
+    @ColumnInfo(name = "category5") val category5: String?, // 科目
+    @ColumnInfo(name = "image_resource_id") val imageResourceId: Int? // 画像リソースID
 )
 
 @Dao
