@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvQuestion: TextView
     private lateinit var rgChoices: RadioGroup
     private lateinit var btnAnswer: Button
+    private lateinit var btnQuit: Button
     private lateinit var tvScore: TextView
 
     private var currentQuestionIndex = 0
@@ -69,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         tvQuestion = findViewById(R.id.tv_question)
         rgChoices = findViewById(R.id.rg_choices)
         btnAnswer = findViewById(R.id.btn_answer)
+        btnQuit = findViewById(R.id.btn_quit)
         tvScore = findViewById(R.id.tv_score)
         imageView = findViewById(R.id.iv_question_image)
 
@@ -113,6 +115,20 @@ class MainActivity : AppCompatActivity() {
                     showQuestion()
                 }
             }
+        }
+        btnQuit.setOnClickListener {
+            // 残り問題を不正解として扱う
+            val remainingQuestions = questions.size - (currentQuestionIndex + 1)
+
+            // スコアを更新 (全問不正解で更新)
+            correctAnswers += 0
+
+            // 結果画面へ遷移
+            val intent = Intent(this, ResultActivity::class.java)
+            intent.putExtra("TOTAL_SCORE", correctAnswers)
+            intent.putExtra("TOTAL_QUESTION", questions.size)
+            startActivity(intent)
+            finish() // 現在のActivityを終了
         }
 
         val webView = findViewById<WebView>(R.id.webView)
