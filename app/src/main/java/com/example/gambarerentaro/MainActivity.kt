@@ -90,6 +90,7 @@ class MainActivity : AppCompatActivity() {
             }
             // 区分を指定して問題を取得
             questions = questionDao.getQuestionsByCategory(category1, category2, category3, category4, category5)
+            questions = questions.shuffled() // リストをシャッフル
             // メインスレッドで UI を更新
             withContext(Dispatchers.Main) {
                 // 最初の問題を表示
