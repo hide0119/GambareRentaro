@@ -123,6 +123,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showQuestion() {
+        // 問題番号を表示
+        val questionNumberText = "${currentQuestionIndex + 1}/${questions.size}"
+        findViewById<TextView>(R.id.tv_question_number).text = questionNumberText
+
         // WebView を非表示にする
         val webViewContainer = findViewById<LinearLayout>(R.id.webViewContainer)
         webViewContainer.visibility = View.GONE
