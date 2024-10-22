@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.RadioGroup
 import android.widget.Spinner
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -65,6 +66,11 @@ class MenuActivity : ComponentActivity() {
             val category3 = category3Spinner.selectedItem.toString()
             val category4 = category4Spinner.selectedItem.toString()
             val category5 = category5Spinner.selectedItem.toString()
+            val questionCount = when (findViewById<RadioGroup>(R.id.rg_question_count).checkedRadioButtonId) {
+                R.id.rb_10_questions -> 10
+                R.id.rb_all_questions -> -1 // 全部を表す値 (例: -1)
+                else -> -1 // デフォルトは全部
+            }
             // スタートボタンがクリックされた時の処理を記述
             val intent = Intent(this, MainActivity::class.java)
             intent.putExtra("CATEGORY1", category1)
@@ -72,6 +78,7 @@ class MenuActivity : ComponentActivity() {
             intent.putExtra("CATEGORY3", category3)
             intent.putExtra("CATEGORY4", category4)
             intent.putExtra("CATEGORY5", category5)
+            intent.putExtra("QUESTION_COUNT", questionCount)
             startActivity(intent)
         }
     }

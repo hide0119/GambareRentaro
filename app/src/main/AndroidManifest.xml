@@ -7,7 +7,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/frog"
-        android:label="がん廉"
+        android:label="がんば廉"
         android:roundIcon="@mipmap/frog_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GambareRentaro"

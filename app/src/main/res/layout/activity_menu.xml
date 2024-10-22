@@ -66,6 +66,30 @@
         app:layout_constraintVertical_bias="0.019"
         tools:ignore="MissingConstraints" />
 
+    <RadioGroup
+        android:id="@+id/rg_question_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/start_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/category5_spinner">
+
+        <RadioButton
+            android:id="@+id/rb_10_questions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10問" />
+
+        <RadioButton
+            android:id="@+id/rb_all_questions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="全部" />
+
+    </RadioGroup>
+
     <Button
         android:id="@+id/start_button"
         android:layout_width="194dp"

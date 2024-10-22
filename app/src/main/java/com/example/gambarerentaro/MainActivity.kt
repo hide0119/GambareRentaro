@@ -65,6 +65,7 @@ class MainActivity : AppCompatActivity() {
         val category3 = intent.getStringExtra("CATEGORY3")
         val category4 = intent.getStringExtra("CATEGORY4")
         val category5 = intent.getStringExtra("CATEGORY5")
+        val questionCount = intent.getIntExtra("QUESTION_COUNT", -1)
 
         // UI要素の初期化
         tvQuestion = findViewById(R.id.tv_question)
@@ -93,6 +94,11 @@ class MainActivity : AppCompatActivity() {
             // 区分を指定して問題を取得
             questions = questionDao.getQuestionsByCategory(category1, category2, category3, category4, category5)
             questions = questions.shuffled() // リストをシャッフル
+
+            // 全部ではない場合
+            if (questionCount != -1) {
+                questions = questions.take(questionCount)
+            }
             // メインスレッドで UI を更新
             withContext(Dispatchers.Main) {
                 // 最初の問題を表示
