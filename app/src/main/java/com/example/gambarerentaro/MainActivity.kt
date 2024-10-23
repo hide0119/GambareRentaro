@@ -1,39 +1,42 @@
 package com.example.gambarerentaro
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
-import android.os.Bundle
-import android.widget.Button
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import android.media.SoundPool
 import android.net.Uri
+import android.os.Bundle
 import android.view.View
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.LinearLayout
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.*
-import android.content.Context
+import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.ScrollView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.room.ColumnInfo
+import androidx.room.Dao
 import androidx.room.Database
+import androidx.room.Delete
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.Update
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
-import org.json.JSONObject
 import java.io.InputStream
 
 class MainActivity : AppCompatActivity() {
@@ -50,6 +53,13 @@ class MainActivity : AppCompatActivity() {
     private var correctSoundId: Int = 0
     private var incorrectSoundId: Int = 0
 
+    // カテゴリ情報を保存する変数
+    private var category1: String? = null
+    private var category2: String? = null
+    private var category3: String? = null
+    private var category4: String? = null
+    private var category5: String? = null
+
     private lateinit var db: AppDatabase
     private lateinit var questionDao: QuestionDao
     private lateinit var questions: List<Question>
@@ -60,11 +70,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // 区分情報を受け取る
-        val category1 = intent.getStringExtra("CATEGORY1")
-        val category2 = intent.getStringExtra("CATEGORY2")
-        val category3 = intent.getStringExtra("CATEGORY3")
-        val category4 = intent.getStringExtra("CATEGORY4")
-        val category5 = intent.getStringExtra("CATEGORY5")
+        category1 = intent.getStringExtra("CATEGORY1")
+        category2 = intent.getStringExtra("CATEGORY2")
+        category3 = intent.getStringExtra("CATEGORY3")
+        category4 = intent.getStringExtra("CATEGORY4")
+        category5 = intent.getStringExtra("CATEGORY5")
         val questionCount = intent.getIntExtra("QUESTION_COUNT", -1)
 
         // UI要素の初期化
@@ -133,6 +143,12 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, ResultActivity::class.java)
             intent.putExtra("TOTAL_SCORE", correctAnswers)
             intent.putExtra("TOTAL_QUESTION", questions.size)
+            // CATEGORY1～CATEGORY5 を Intent に追加
+            intent.putExtra("CATEGORY1", category1)
+            intent.putExtra("CATEGORY2", category2)
+            intent.putExtra("CATEGORY3", category3)
+            intent.putExtra("CATEGORY4", category4)
+            intent.putExtra("CATEGORY5", category5)
             startActivity(intent)
             finish() // 現在のActivityを終了
         }
@@ -203,6 +219,13 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, ResultActivity::class.java)
         intent.putExtra("TOTAL_SCORE", correctAnswers)
         intent.putExtra("TOTAL_QUESTION", totalQuestions)
+        // CATEGORY1～CATEGORY5 を Intentに追加
+        intent.putExtra("CATEGORY1", intent.getStringExtra("CATEGORY1"))
+        intent.putExtra("CATEGORY2", intent.getStringExtra("CATEGORY2"))
+        intent.putExtra("CATEGORY3", intent.getStringExtra("CATEGORY3"))
+        intent.putExtra("CATEGORY4", intent.getStringExtra("CATEGORY4"))
+        intent.putExtra("CATEGORY5", intent.getStringExtra("CATEGORY5"))
+
         startActivity(intent)
     }
 

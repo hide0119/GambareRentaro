@@ -8,11 +8,6 @@ import android.widget.Button
 import android.widget.RadioGroup
 import android.widget.Spinner
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -79,6 +74,13 @@ class MenuActivity : ComponentActivity() {
             intent.putExtra("CATEGORY4", category4)
             intent.putExtra("CATEGORY5", category5)
             intent.putExtra("QUESTION_COUNT", questionCount)
+            startActivity(intent)
+        }
+        // 成績ボタンのクリックリスナーを設定
+        val scoreButton = findViewById<Button>(R.id.score_button)
+        scoreButton.setOnClickListener {
+            // ScoreActivity を起動
+            val intent = Intent(this, ScoreActivity::class.java)
             startActivity(intent)
         }
     }

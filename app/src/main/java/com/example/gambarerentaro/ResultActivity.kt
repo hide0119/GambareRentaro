@@ -6,8 +6,12 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
-import androidx.activity.ComponentActivity
 import android.widget.TextView
+import androidx.activity.ComponentActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.gambarerentaro.database.Score
+import com.example.gambarerentaro.database.ScoreDatabase
+import kotlinx.coroutines.launch
 
 class ResultActivity : ComponentActivity() {
     private lateinit var correctMediaPlayer: MediaPlayer
@@ -20,6 +24,14 @@ class ResultActivity : ComponentActivity() {
 
         val totalScore = intent.getIntExtra("TOTAL_SCORE", 0)
         val totalQuestions = intent.getIntExtra("TOTAL_QUESTION", 0)
+        // CATEGORY1～CATEGORY5 を取得
+        val category1 = intent.getStringExtra("CATEGORY1") ?: ""
+        val category2 = intent.getStringExtra("CATEGORY2") ?: ""
+        val category3 = intent.getStringExtra("CATEGORY3") ?: ""
+        val category4 = intent.getStringExtra("CATEGORY4") ?: ""
+        val category5 = intent.getStringExtra("CATEGORY5") ?: ""
+        // categories を構築
+        val categories = "$category1, $category2, $category3, $category4, $category5"
 
         val totalScoreTextView = findViewById<TextView>(R.id.totalScoreTextView)
         val totalQuestionsTextView = findViewById<TextView>(R.id.totalQuestionsTextView)
@@ -37,6 +49,21 @@ class ResultActivity : ComponentActivity() {
         } else {
             resultImageView.setImageResource(R.drawable.not_perfect_image)
             wrongMediaPlayer.start()
+        }
+
+        // クイズ結果の取得
+        val correctAnswers = intent.getIntExtra("CORRECT_ANSWERS", totalScore)
+
+        // データベースに保存
+        val scoreDao = ScoreDatabase.getDatabase(this).scoreDao()
+        val score = Score(
+            timestamp = System.currentTimeMillis(),
+            categories = categories,
+            score = correctAnswers,
+            totalQuestions = totalQuestions
+        )
+        lifecycleScope.launch {
+            scoreDao.insert(score)
         }
 
         val menuButton = findViewById<Button>(R.id.menuButton)

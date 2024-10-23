@@ -4,6 +4,10 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
+ext {
+    var kotlin_version = "1.8.22"
+}
+
 android {
     namespace = "com.example.gambarerentaro"
     compileSdk = 34
@@ -77,4 +81,5 @@ dependencies {
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21")
 }
