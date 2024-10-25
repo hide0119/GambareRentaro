@@ -33,6 +33,7 @@ import androidx.room.RoomDatabase
 import androidx.room.Update
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.google.ai.client.generativeai.GenerativeModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -64,6 +65,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var questionDao: QuestionDao
     private lateinit var questions: List<Question>
     private lateinit var imageView: ImageView // ImageView をプロパティとして宣言
+
+    private lateinit var generativeModel: GenerativeModel
+    private val API_KEY = "AIzaSyDmnVMgcM4AF4PeMj57SA729ZnMtFKSHeI"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -132,6 +136,17 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        generativeModel = GenerativeModel(
+            modelName = "gemini-pro",
+            apiKey = API_KEY
+        )
+        val webView = findViewById<WebView>(R.id.webView)
+        // キャッシュモードを変更
+        webView.settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+        webView.settings.javaScriptEnabled = true // JavaScript を有効にする
+        webView.webViewClient = WebViewClient() // リンクを WebView 内で開く
+
         btnQuit.setOnClickListener {
             // 残り問題を不正解として扱う
             val remainingQuestions = questions.size - (currentQuestionIndex + 1)
@@ -152,12 +167,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             finish() // 現在のActivityを終了
         }
-
-        val webView = findViewById<WebView>(R.id.webView)
-        // キャッシュモードを変更
-        webView.settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
-        webView.settings.javaScriptEnabled = true // JavaScript を有効にする
-        webView.webViewClient = WebViewClient() // リンクを WebView 内で開く
     }
 
     private fun showQuestion() {
@@ -234,21 +243,91 @@ class MainActivity : AppCompatActivity() {
         soundPool.release()
     }
 
+//    fun toggleWebView(view: View) {
+//        val webViewContainer = findViewById<LinearLayout>(R.id.webViewContainer)
+//        val webView = findViewById<WebView>(R.id.webView)
+//
+//        if (webViewContainer.visibility == View.GONE) {
+//            webViewContainer.visibility = View.VISIBLE
+//            // WebView に URL をロード
+//            val searchQuery = questions[currentQuestionIndex].text // 現在の問題文を検索キーワードにする
+//            val url = "https://www.google.com/search?q=" + Uri.encode(searchQuery)
+//            webView.loadUrl(url)
+//        } else {
+//            webViewContainer.visibility = View.GONE
+//        }
+//    }
+//    fun toggleWebView(view: View) {
+//        val webViewContainer = findViewById<LinearLayout>(R.id.webViewContainer)
+//        val webView = findViewById<WebView>(R.id.webView)
+//
+//        if (webViewContainer.visibility == View.GONE) {
+//            webViewContainer.visibility = View.VISIBLE
+//
+//            // AIにヒントを質問するプロンプトを生成
+//            val prompt = "問題: ${questions[currentQuestionIndex].text} についてヒントをください。ただし、直接的な答えは含めないでください。ちょっと面白い感じで回答してください。"
+//
+//            // GenerativeModelを使用してAIに質問
+//            lifecycleScope.launch {
+//                try {
+//                    val response = withContext(Dispatchers.IO) {
+//                        generativeModel.generateContent(prompt)
+//                    }
+//
+//                    // 回答をWebViewに表示
+//                    withContext(Dispatchers.Main) {
+//                        val answer = response.text ?: "回答を生成できませんでした。"
+//                        webView.loadDataWithBaseURL(null, answer, "text/html", "UTF-8", null)
+//                    }
+//                } catch (e: Exception) {
+//                    // エラー発生時の処理
+//                    withContext(Dispatchers.Main) {
+//                        webView.loadDataWithBaseURL(null, "エラーが発生しました: ${e.message}", "text/html", "UTF-8", null)
+//                    }
+//                }
+//            }
+//        } else {
+//            webViewContainer.visibility = View.GONE
+//        }
+//    }
     fun toggleWebView(view: View) {
         val webViewContainer = findViewById<LinearLayout>(R.id.webViewContainer)
         val webView = findViewById<WebView>(R.id.webView)
 
         if (webViewContainer.visibility == View.GONE) {
             webViewContainer.visibility = View.VISIBLE
-            // WebView に URL をロード
-            val searchQuery = questions[currentQuestionIndex].text // 現在の問題文を検索キーワードにする
-            val url = "https://www.google.com/search?q=" + Uri.encode(searchQuery)
-            webView.loadUrl(url)
+
+            // AI にヒントを質問するプロンプトを生成
+            val prompt = "問題: ${questions[currentQuestionIndex].text} についてヒントをください。ただし、直接的な答えは含めないでください。フランクな感じで回答してください。"
+
+            lifecycleScope.launch {
+                try {
+                    val generativeModel = GenerativeModel(
+                        modelName = "gemini-pro",
+                        apiKey = API_KEY
+                    )
+                    val response = withContext(Dispatchers.IO) {
+                        generativeModel.generateContent(prompt)
+                    }
+
+                    // 回答を WebView に表示
+                    withContext(Dispatchers.Main) {
+                        val answer = response.text ?: "回答を生成できませんでした。"
+                        webView.loadDataWithBaseURL(null, answer, "text/html", "UTF-8", null)
+                    }
+                } catch (e: Exception) {
+                    // エラー発生時は Google 検索にフォールバック
+                    withContext(Dispatchers.Main) {
+                        val searchQuery = questions[currentQuestionIndex].text
+                        val url = "https://www.google.com/search?q=" + Uri.encode(searchQuery)
+                        webView.loadUrl(url)
+                    }
+                }
+            }
         } else {
             webViewContainer.visibility = View.GONE
         }
     }
-
     private fun loadQuestionsJson(): String {
         val inputStream: InputStream = assets.open("questions.json")
         val size:Int = inputStream.available()

@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -5,7 +8,7 @@ plugins {
 }
 
 ext {
-    var kotlin_version = "1.8.22"
+    var kotlin_version = "1.9.10"
 }
 
 android {
@@ -26,12 +29,22 @@ android {
     }
 
     buildTypes {
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localProperties.load(FileInputStream(localPropertiesFile))
+        }
+        val apiKey = localProperties.getProperty("apiKey") ?: ""
+        debug {
+            buildConfigField("String", "API_KEY", "\"$apiKey\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "API_KEY", "\"$apiKey\"")
         }
     }
     compileOptions {
@@ -43,6 +56,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -82,4 +96,6 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21")
+
+    implementation("com.google.ai.client.generativeai:generativeai:0.1.2")
 }
