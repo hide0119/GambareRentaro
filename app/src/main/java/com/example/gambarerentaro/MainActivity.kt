@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var imageView: ImageView // ImageView をプロパティとして宣言
 
     private lateinit var generativeModel: GenerativeModel
-    private val API_KEY = "AIzaSyDmnVMgcM4AF4PeMj57SA729ZnMtFKSHeI"
+    private val API_KEY = BuildConfig.API_KEY
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -229,11 +229,11 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra("TOTAL_SCORE", correctAnswers)
         intent.putExtra("TOTAL_QUESTION", totalQuestions)
         // CATEGORY1～CATEGORY5 を Intentに追加
-        intent.putExtra("CATEGORY1", intent.getStringExtra("CATEGORY1"))
-        intent.putExtra("CATEGORY2", intent.getStringExtra("CATEGORY2"))
-        intent.putExtra("CATEGORY3", intent.getStringExtra("CATEGORY3"))
-        intent.putExtra("CATEGORY4", intent.getStringExtra("CATEGORY4"))
-        intent.putExtra("CATEGORY5", intent.getStringExtra("CATEGORY5"))
+        intent.putExtra("CATEGORY1", category1)
+        intent.putExtra("CATEGORY2", category2)
+        intent.putExtra("CATEGORY3", category3)
+        intent.putExtra("CATEGORY4", category4)
+        intent.putExtra("CATEGORY5", category5)
 
         startActivity(intent)
     }
@@ -243,53 +243,6 @@ class MainActivity : AppCompatActivity() {
         soundPool.release()
     }
 
-//    fun toggleWebView(view: View) {
-//        val webViewContainer = findViewById<LinearLayout>(R.id.webViewContainer)
-//        val webView = findViewById<WebView>(R.id.webView)
-//
-//        if (webViewContainer.visibility == View.GONE) {
-//            webViewContainer.visibility = View.VISIBLE
-//            // WebView に URL をロード
-//            val searchQuery = questions[currentQuestionIndex].text // 現在の問題文を検索キーワードにする
-//            val url = "https://www.google.com/search?q=" + Uri.encode(searchQuery)
-//            webView.loadUrl(url)
-//        } else {
-//            webViewContainer.visibility = View.GONE
-//        }
-//    }
-//    fun toggleWebView(view: View) {
-//        val webViewContainer = findViewById<LinearLayout>(R.id.webViewContainer)
-//        val webView = findViewById<WebView>(R.id.webView)
-//
-//        if (webViewContainer.visibility == View.GONE) {
-//            webViewContainer.visibility = View.VISIBLE
-//
-//            // AIにヒントを質問するプロンプトを生成
-//            val prompt = "問題: ${questions[currentQuestionIndex].text} についてヒントをください。ただし、直接的な答えは含めないでください。ちょっと面白い感じで回答してください。"
-//
-//            // GenerativeModelを使用してAIに質問
-//            lifecycleScope.launch {
-//                try {
-//                    val response = withContext(Dispatchers.IO) {
-//                        generativeModel.generateContent(prompt)
-//                    }
-//
-//                    // 回答をWebViewに表示
-//                    withContext(Dispatchers.Main) {
-//                        val answer = response.text ?: "回答を生成できませんでした。"
-//                        webView.loadDataWithBaseURL(null, answer, "text/html", "UTF-8", null)
-//                    }
-//                } catch (e: Exception) {
-//                    // エラー発生時の処理
-//                    withContext(Dispatchers.Main) {
-//                        webView.loadDataWithBaseURL(null, "エラーが発生しました: ${e.message}", "text/html", "UTF-8", null)
-//                    }
-//                }
-//            }
-//        } else {
-//            webViewContainer.visibility = View.GONE
-//        }
-//    }
     fun toggleWebView(view: View) {
         val webViewContainer = findViewById<LinearLayout>(R.id.webViewContainer)
         val webView = findViewById<WebView>(R.id.webView)
