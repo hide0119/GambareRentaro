@@ -15,6 +15,16 @@ android {
     namespace = "com.example.gambarerentaro"
     compileSdk = 34
 
+    applicationVariants.all {
+        val variant = this
+        variant.outputs
+            .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+            .forEach { output ->
+                val outputFileName = "GambareRentaro.apk"
+                output.outputFileName = outputFileName
+            }
+    }
+
     defaultConfig {
         applicationId = "com.example.gambarerentaro"
         minSdk = 24

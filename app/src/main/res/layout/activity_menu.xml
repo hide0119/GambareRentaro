@@ -80,6 +80,7 @@
             android:id="@+id/rb_10_questions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checked="true"
             android:text="10問" />
 
         <RadioButton
