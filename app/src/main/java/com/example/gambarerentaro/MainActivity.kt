@@ -6,6 +6,8 @@ import android.content.Intent
 import android.media.SoundPool
 import android.net.Uri
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -39,6 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import java.io.InputStream
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -47,6 +50,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnAnswer: Button
     private lateinit var btnQuit: Button
     private lateinit var tvScore: TextView
+    private lateinit var textToSpeech: TextToSpeech
 
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
@@ -119,6 +123,28 @@ class MainActivity : AppCompatActivity() {
                 showQuestion()
             }
         }
+
+        textToSpeech = TextToSpeech(this) {
+            status ->if (status == TextToSpeech.SUCCESS) {
+                // TTS エンジンの初期化に成功した場合の処理
+                val result = textToSpeech.setLanguage(Locale.US) // 英語に設定
+                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    // 英語がサポートされていない場合の処理
+                    Log.e("TTS", "This Language is not supported")
+                }
+            } else {
+                // TTS エンジンの初期化に失敗した場合の処理
+                Log.e("TTS", "Initialization Failed!")
+            }
+        }
+
+        // 再生ボタンのクリック処理
+        val playButton = findViewById<Button>(R.id.playButton)
+        playButton.setOnClickListener {
+            val wordToSpeak = questions[currentQuestionIndex].wordToSpeak // 単語を取得
+            textToSpeech.speak(wordToSpeak, TextToSpeech.QUEUE_FLUSH, null, null)
+        }
+
         // 回答ボタンのクリック処理
         btnAnswer.setOnClickListener {
             val selectedRadioButtonId = rgChoices.checkedRadioButtonId
@@ -173,6 +199,14 @@ class MainActivity : AppCompatActivity() {
         // 問題番号を表示
         val questionNumberText = "${currentQuestionIndex + 1}/${questions.size}"
         findViewById<TextView>(R.id.tv_question_number).text = questionNumberText
+
+        // 再生を非表示にする
+        val playButton = findViewById<Button>(R.id.playButton)
+        if (questions[currentQuestionIndex].wordToSpeak != null) {
+            playButton.visibility = View.VISIBLE
+        } else {
+            playButton.visibility = View.GONE
+        }
 
         // WebView を非表示にする
         val webViewContainer = findViewById<LinearLayout>(R.id.webViewContainer)
@@ -301,6 +335,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 null
             }
+            val wordToSpeak = jsonObject.optString("wordToSpeak", null) // wordToSpeak 要素が存在しない場合は null を設定
             val question = Question(
                 text = jsonObject.getString("text"),
                 answer = jsonObject.getString("answer"),
@@ -313,7 +348,8 @@ class MainActivity : AppCompatActivity() {
                 category3 = jsonObject.getString("category3"),
                 category4 = jsonObject.getString("category4"),
                 category5 = jsonObject.getString("category5"),
-                imageResourceId = imageResourceId
+                imageResourceId = imageResourceId,
+                wordToSpeak = wordToSpeak
             )
             questionDao.insertAll(question)
         }
@@ -334,7 +370,8 @@ data class Question(
     @ColumnInfo(name = "category3") val category3: String?, // テストの種類
     @ColumnInfo(name = "category4") val category4: String?, // 月
     @ColumnInfo(name = "category5") val category5: String?, // 科目
-    @ColumnInfo(name = "image_resource_id") val imageResourceId: Int? // 画像リソースID
+    @ColumnInfo(name = "image_resource_id") val imageResourceId: Int?, // 画像リソースID
+    @ColumnInfo(name = "word_to_speak") val wordToSpeak: String?= null // 再生対象の単語 (null 許容)
 )
 
 @Dao
@@ -355,7 +392,7 @@ interface QuestionDao {
     fun getQuestionsByCategory(category1: String?, category2: String?, category3: String?, category4: String?, category5: String?): List<Question>
 }
 
-@Database(entities = [Question::class], version = 2)
+@Database(entities = [Question::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun questionDao(): QuestionDao
 
@@ -375,7 +412,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "quiz_database"
                 )
                 // 移行処理を追加
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .fallbackToDestructiveMigration() // データベースを削除して再作成
                 .build()
                 INSTANCE = instance
@@ -391,6 +428,12 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL("ALTER TABLE questions ADD COLUMN category3 TEXT")
                 database.execSQL("ALTER TABLE questions ADD COLUMN category4 TEXT")
                 database.execSQL("ALTER TABLE questions ADD COLUMN category5 TEXT")
+            }
+        }
+        // 移行処理を定義
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE questions ADD COLUMN word_to_speak TEXT")
             }
         }
     }
