@@ -1,10 +1,12 @@
 package com.example.gambarerentaro
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.Spinner
 import androidx.activity.ComponentActivity
@@ -20,6 +22,21 @@ class MenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_menu)
+
+        val sharedPreferences = getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        // 名前を保存
+        val editTextName = findViewById<EditText>(R.id.edit_text_name)
+        val name = editTextName.text.toString()
+        editor.putString("user_name", name)
+        editor.apply()
+        // 名前を読み込み
+        val savedName = sharedPreferences.getString("user_name", "")
+        if (savedName != null) {
+            if (savedName.isNotEmpty()) {
+                editTextName.setText(savedName)
+            }
+        }
 
         val category1Spinner = findViewById<Spinner>(R.id.category1_spinner)
         val category2Spinner = findViewById<Spinner>(R.id.category2_spinner)

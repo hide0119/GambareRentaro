@@ -6,6 +6,20 @@
     android:layout_height="match_parent"
     android:background="@drawable/background">
 
+    <EditText
+        android:id="@+id/edit_text_name"
+        android:layout_width="344dp"
+        android:layout_height="39dp"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:inputType="textNoSuggestions"
+        android:hint="名前を入力してください"
+        app:layout_constraintBottom_toTopOf="@+id/category1_spinner"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
     <Spinner
         android:id="@+id/category1_spinner"
         android:layout_width="wrap_content"
@@ -15,7 +29,7 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.046"
+        app:layout_constraintVertical_bias="0.076"
         tools:ignore="MissingConstraints" />
 
     <Spinner
@@ -101,7 +115,7 @@
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.413"
+        app:layout_constraintVertical_bias="0.458"
         tools:ignore="MissingConstraints" />
 
     <Button
