@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -23,20 +25,21 @@ class MenuActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_menu)
 
+        // 名前の設定
         val sharedPreferences = getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        // 名前を保存
         val editTextName = findViewById<EditText>(R.id.edit_text_name)
-        val name = editTextName.text.toString()
-        editor.putString("user_name", name)
-        editor.apply()
-        // 名前を読み込み
         val savedName = sharedPreferences.getString("user_name", "")
-        if (savedName != null) {
-            if (savedName.isNotEmpty()) {
-                editTextName.setText(savedName)
+        editTextName.setText(savedName)
+        editTextName.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                val name = s.toString()
+                val editor = sharedPreferences.edit()
+                editor.putString("user_name", name)
+                editor.apply()
             }
-        }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
 
         val category1Spinner = findViewById<Spinner>(R.id.category1_spinner)
         val category2Spinner = findViewById<Spinner>(R.id.category2_spinner)
