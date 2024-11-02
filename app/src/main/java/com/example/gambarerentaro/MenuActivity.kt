@@ -103,6 +103,16 @@ class MenuActivity : ComponentActivity() {
             val intent = Intent(this, ScoreActivity::class.java)
             startActivity(intent)
         }
+        // MenuActivity.kt
+        val awsButton = findViewById<Button>(R.id.aws_button)
+        awsButton.setOnClickListener {
+            val editTextName= findViewById<EditText>(R.id.edit_text_name)
+            val name = editTextName.text.toString()
+
+            val intent = Intent(this, AwsActivity::class.java)
+            intent.putExtra("USER_NAME", name) // 名前を Intent に格納
+            startActivity(intent)
+        }
     }
 
 }

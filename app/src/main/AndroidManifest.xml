@@ -15,6 +15,11 @@
         android:theme="@style/Theme.GambareRentaro"
         tools:targetApi="31">
         <activity
+            android:name=".AwsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_aws"
+            android:theme="@style/Theme.GambareRentaro" />
+        <activity
             android:name=".ScoreActivity"
             android:exported="false"
             android:label="@string/title_activity_score"
@@ -35,7 +40,7 @@
             android:theme="@style/Theme.GambareRentaro" />
         <activity
             android:name=".MainActivity"
-            android:exported="false"></activity>
+            android:exported="false" />
     </application>
 
 </manifest>

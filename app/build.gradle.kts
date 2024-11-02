@@ -108,4 +108,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21")
 
     implementation("com.google.ai.client.generativeai:generativeai:0.1.2")
+
+    implementation("com.amazonaws:aws-android-sdk-s3:2.36.+")
+    implementation("com.amazonaws:aws-android-sdk-mobile-client:2.36.+")
+    //implementation("com.amazonaws:aws-android-sdk-cognito-identity-provider:2.36.+")
+    implementation("com.google.code.gson:gson:2.10")
 }
