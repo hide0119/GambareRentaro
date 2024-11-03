@@ -44,10 +44,12 @@ class AwsActivity : ComponentActivity() {
 
     private fun uploadScoresToS3() {
 
+        val userName = intent.getStringExtra("USER_NAME") ?: "" // Intent から名前を取得
         val scoreDao = ScoreDatabase.getDatabase(this).scoreDao()
         lifecycleScope.launch {
             val scoreList = scoreDao.getLatestScores()
-            val jsonString = Gson().toJson(scoreList) // JSONに変換
+            val scoreWithNameList = scoreList.map { ScoreWithName(userName, it) } // ScoreWithName のリストに変換
+            val jsonString = Gson().toJson(scoreWithNameList) // JSONに変換
 
             // AWS S3へのアップロード処理
             val credentialsProvider = CognitoCachingCredentialsProvider(
@@ -156,6 +158,10 @@ class AwsActivity : ComponentActivity() {
 
     // ... (その他のコードは省略)
 }
+
+data class ScoreWithName(
+    val name: String,
+    val score: Score)
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
