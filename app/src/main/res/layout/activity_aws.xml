@@ -47,8 +47,8 @@
 
     <TextView
         android:id="@+id/score_text_view"
-        android:layout_width="380dp"
-        android:layout_height="365dp"
+        android:layout_width="352dp"
+        android:layout_height="522dp"
         android:layout_margin="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

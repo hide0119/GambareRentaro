@@ -25,6 +25,9 @@ import com.example.gambarerentaro.ui.theme.GambareRentaroTheme
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class AwsActivity : ComponentActivity() {
     @SuppressLint("MissingInflatedId")
@@ -39,6 +42,11 @@ class AwsActivity : ComponentActivity() {
         val uploadButton = findViewById<Button>(R.id.upload_button)
         uploadButton.setOnClickListener {
             uploadScoresToS3()
+        }
+
+        val downloadButton = findViewById<Button>(R.id.download_button)
+        downloadButton.setOnClickListener {
+            downloadScoresFromS3()
         }
     }
 
@@ -113,7 +121,7 @@ class AwsActivity : ComponentActivity() {
             .build()
 
         val downloadObserver = transferUtility.download(
-            "your-bucket-name", // バケット名
+            "gambarerentaro", // バケット名
             "scores.json", // ファイル名
             File(cacheDir, "scores.json") // ダウンロード先のファイル
         )
@@ -124,18 +132,23 @@ class AwsActivity : ComponentActivity() {
                     // ダウンロード完了時の処理
                     val downloadedFile = File(cacheDir, "scores.json")
                     val jsonString = downloadedFile.readText()
-                    val scoreList = Gson().fromJson(jsonString, Array<Score>::class.java).toList()
+
+                    // ScoreWithName のリストとしてデシリアライズ
+                    val scoreWithNameList = Gson().fromJson(jsonString, Array<ScoreWithName>::class.java).toList()
 
                     // 最下部の10件分のデータを取得
-                    val latestScores = scoreList.takeLast(10)
+                    val latestScores = scoreWithNameList.takeLast(10)
 
                     // データをテキストに変換
-                    val scoreText = latestScores.joinToString("\n") { "${it.score}" }
-                    //val scoreText = latestScores.joinToString("\n") { "${it.name}: ${it.score}" }
+                    val scoreText = latestScores.joinToString("\n") {
+                        val format = SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.JAPAN)
+                        val formattedTimestamp = format.format(Date(it.score.timestamp))
+                        "${it.name}, $formattedTimestamp, ${it.score.categories}, ${it.score.score}点, ${it.score.totalQuestions}問"
+                    }
 
                     // TextView に表示
                     runOnUiThread {
-                        val textView = findViewById<TextView>(R.id.score_text_view) // activity_aws.xml に TextView を追加
+                        val textView = findViewById<TextView>(R.id.score_text_view)
                         textView.text = scoreText
                     }
                 }
@@ -148,8 +161,11 @@ class AwsActivity : ComponentActivity() {
             }
 
             override fun onError(id: Int, ex: Exception) {
-                // エラーが発生したときの処理
-                // 例: エラーメッセージを表示する
+                Log.e("AwsActivity", "Download error: ${ex.javaClass.simpleName} - ${ex.message}", ex)
+                ex.printStackTrace() // スタックトレースを出力
+                runOnUiThread {
+                    Toast.makeText(this@AwsActivity, "ダウンロード中にエラーが発生しました", Toast.LENGTH_SHORT).show()
+                }
             }
 
             // ... other override methods ...
