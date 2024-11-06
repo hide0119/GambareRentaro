@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -17,6 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.gambarerentaro.ui.theme.GambareRentaroTheme
+import org.json.JSONObject
+import java.io.InputStream
 
 class MenuActivity : ComponentActivity() {
 
@@ -47,31 +50,35 @@ class MenuActivity : ComponentActivity() {
         val category4Spinner = findViewById<Spinner>(R.id.category4_spinner)
         val category5Spinner = findViewById<Spinner>(R.id.category5_spinner)
 
-        // スピナーに選択肢を設定
-        val category1Options = arrayOf("塾","学校","その他") // 区分の選択肢
-        val category1Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category1Options)
-        category1Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        category1Spinner.adapter = category1Adapter
+        // JSON ファイルから選択肢を読み込む
+        val jsonString = loadCategoriesJson()
+        parseCategoriesJson(jsonString, category1Spinner, category2Spinner, category3Spinner, category4Spinner, category5Spinner)
 
-        val category2Options = arrayOf("4年") // 区分の選択肢
-        val category2Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category2Options)
-        category2Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        category2Spinner.adapter = category2Adapter
-
-        val category3Options = arrayOf("基礎テスト") // 区分の選択肢
-        val category3Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category3Options)
-        category3Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        category3Spinner.adapter = category3Adapter
-
-        val category4Options = arrayOf("11月") // 区分の選択肢
-        val category4Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category4Options)
-        category4Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        category4Spinner.adapter = category4Adapter
-
-        val category5Options = arrayOf("国語", "算数", "社会", "理科", "英語") // 区分の選択肢
-        val category5Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category5Options)
-        category5Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        category5Spinner.adapter = category5Adapter
+//        // スピナーに選択肢を設定
+//        val category1Options = arrayOf("塾","学校","その他") // 区分の選択肢
+//        val category1Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category1Options)
+//        category1Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        category1Spinner.adapter = category1Adapter
+//
+//        val category2Options = arrayOf("4年") // 区分の選択肢
+//        val category2Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category2Options)
+//        category2Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        category2Spinner.adapter = category2Adapter
+//
+//        val category3Options = arrayOf("基礎テスト") // 区分の選択肢
+//        val category3Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category3Options)
+//        category3Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        category3Spinner.adapter = category3Adapter
+//
+//        val category4Options = arrayOf("11月") // 区分の選択肢
+//        val category4Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category4Options)
+//        category4Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        category4Spinner.adapter = category4Adapter
+//
+//        val category5Options = arrayOf("国語", "算数", "社会", "理科", "英語") // 区分の選択肢
+//        val category5Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category5Options)
+//        category5Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        category5Spinner.adapter = category5Adapter
 
         val startButton: Button = findViewById(R.id.start_button)
         startButton.setOnClickListener {
@@ -113,6 +120,49 @@ class MenuActivity : ComponentActivity() {
             intent.putExtra("USER_NAME", name) // 名前を Intent に格納
             startActivity(intent)
         }
+    }
+    // JSON ファイルを読み込む関数
+    private fun loadCategoriesJson(): String {
+        val inputStream: InputStream = assets.open("categories.json")
+        val size: Int = inputStream.available()
+        val buffer = ByteArray(size)
+        inputStream.read(buffer)
+        inputStream.close()
+        return String(buffer, Charsets.UTF_8)
+    }
+
+    // JSON データをパースし、Spinner の選択肢を設定する関数
+    private fun parseCategoriesJson(jsonString: String, category1Spinner: Spinner, category2Spinner: Spinner, category3Spinner: Spinner, category4Spinner: Spinner, category5Spinner: Spinner) {
+        try {
+            val jsonObject = JSONObject(jsonString)
+
+            val category1Options = (0 until jsonObject.getJSONArray("category1").length())
+                .map { jsonObject.getJSONArray("category1").getString(it) }
+            val category2Options = (0 until jsonObject.getJSONArray("category2").length())
+                .map { jsonObject.getJSONArray("category2").getString(it) }
+            val category3Options = (0 until jsonObject.getJSONArray("category3").length())
+                .map { jsonObject.getJSONArray("category3").getString(it) }
+            val category4Options = (0 until jsonObject.getJSONArray("category4").length())
+                .map { jsonObject.getJSONArray("category4").getString(it) }
+            val category5Options = (0 until jsonObject.getJSONArray("category5").length())
+                .map { jsonObject.getJSONArray("category5").getString(it) }
+
+            setSpinnerAdapter(category1Spinner, category1Options)
+            setSpinnerAdapter(category2Spinner, category2Options)
+            setSpinnerAdapter(category3Spinner, category3Options)
+            setSpinnerAdapter(category4Spinner, category4Options)
+            setSpinnerAdapter(category5Spinner, category5Options)
+
+        } catch (e: Exception) {
+            Log.e("MenuActivity", "JSON parse error: ${e.message}", e)
+        }
+    }
+
+    // Spinner にアダプターを設定する関数
+    private fun setSpinnerAdapter(spinner: Spinner, options: List<String>) {
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, options)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
     }
 
 }
