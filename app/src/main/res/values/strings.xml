@@ -2,4 +2,7 @@
     <string name="app_name">GambareRentaro</string>
     <string name="title_activity_result">ResultActivity</string>
     <string name="title_activity_menu">MenuActivity</string>
+    <string name="title_activity_score">ScoreActivity</string>
+    <string name="title_activity_aws">AwsActivity</string>
+    <string name="title_activity_multiplayer">MultiplayerActivity</string>
 </resources>
