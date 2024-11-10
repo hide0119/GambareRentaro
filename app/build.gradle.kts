@@ -113,4 +113,6 @@ dependencies {
     implementation("com.amazonaws:aws-android-sdk-mobile-client:2.36.+")
     //implementation("com.amazonaws:aws-android-sdk-cognito-identity-provider:2.36.+")
     implementation("com.google.code.gson:gson:2.10")
+
+    implementation("com.google.android.gms:play-services-nearby:18.0.0")
 }

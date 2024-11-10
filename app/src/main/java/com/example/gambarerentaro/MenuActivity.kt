@@ -54,32 +54,7 @@ class MenuActivity : ComponentActivity() {
         val jsonString = loadCategoriesJson()
         parseCategoriesJson(jsonString, category1Spinner, category2Spinner, category3Spinner, category4Spinner, category5Spinner)
 
-//        // スピナーに選択肢を設定
-//        val category1Options = arrayOf("塾","学校","その他") // 区分の選択肢
-//        val category1Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category1Options)
-//        category1Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        category1Spinner.adapter = category1Adapter
-//
-//        val category2Options = arrayOf("4年") // 区分の選択肢
-//        val category2Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category2Options)
-//        category2Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        category2Spinner.adapter = category2Adapter
-//
-//        val category3Options = arrayOf("基礎テスト") // 区分の選択肢
-//        val category3Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category3Options)
-//        category3Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        category3Spinner.adapter = category3Adapter
-//
-//        val category4Options = arrayOf("11月") // 区分の選択肢
-//        val category4Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category4Options)
-//        category4Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        category4Spinner.adapter = category4Adapter
-//
-//        val category5Options = arrayOf("国語", "算数", "社会", "理科", "英語") // 区分の選択肢
-//        val category5Adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, category5Options)
-//        category5Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        category5Spinner.adapter = category5Adapter
-
+        // ひとり対戦ボタンのクリックリスナーを設定
         val startButton: Button = findViewById(R.id.start_button)
         startButton.setOnClickListener {
             // 選択された区分を取得
@@ -103,6 +78,17 @@ class MenuActivity : ComponentActivity() {
             intent.putExtra("QUESTION_COUNT", questionCount)
             startActivity(intent)
         }
+        // 通信対戦ボタンのクリックリスナーを設定
+        val multiplayerButton: Button =findViewById(R.id.multiplayer_button)
+        multiplayerButton.setOnClickListener {
+            val editTextName = findViewById<EditText>(R.id.edit_text_name)
+            val nickname = editTextName.text.toString()
+
+            val intent = Intent(this, MultiplayerActivity::class.java)
+            intent.putExtra("NICKNAME", nickname) // 名前を Intent に格納
+            startActivity(intent)
+        }
+
         // 成績ボタンのクリックリスナーを設定
         val scoreButton = findViewById<Button>(R.id.score_button)
         scoreButton.setOnClickListener {

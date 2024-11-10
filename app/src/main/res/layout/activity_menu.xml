@@ -105,18 +105,31 @@
 
     </RadioGroup>
 
-    <Button
-        android:id="@+id/start_button"
-        android:layout_width="194dp"
-        android:layout_height="68dp"
-        android:text="クイズスタート"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <LinearLayout
+        android:id="@+id/button_container_horizontal"
+        android:layout_width="304dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.458"
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintTop_toBottomOf="@+id/rg_question_count">
+
+        <Button
+            android:id="@+id/start_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="ひとり対戦" />
+
+        <Button
+            android:id="@+id/multiplayer_button"
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_weight="1"
+            android:text="通信対戦" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/button_container"
